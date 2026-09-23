@@ -1,52 +1,62 @@
-# Comparacion de estructuras de datos — Padron electoral
+# Data Structures Comparison — Electoral Roll
 
-Practico de Maquina 1 — Estructuras de Datos y Algoritmos, UNSL, 2026.
+Coursework for *Estructuras de Datos y Algoritmos*, Universidad Nacional de San Luis, 2026.
 
-Implementacion de un padron electoral sobre tres estructuras distintas y
-comparacion del costo de dar de alta, dar de baja y consultar electores en
-cada una.
+An electoral roll implemented over three different data structures, with a
+comparison of what it costs to insert, delete and look up a voter in each one.
 
-**Integrantes:** Lorenzo Luna y Santino Capdevila (Grupo 15)
+**Authors:** Lorenzo Luna and Santino Capdevila (Group 15)
 
-## Estructuras
+## Structures
 
-- **LVO** — Lista vinculada ordenada con terminacion dada por contenido (centinela +infinito).
-- **LSOBB** — Lista secuencial ordenada con busqueda binaria (biseccion, limites inclusivos, testigo a izquierda).
-- **ABB** — Arbol binario de busqueda. En la baja con dos hijos usa la politica del menor de los mayores, con copia de datos.
+- **LVO** — Sorted linked list terminated by content (a sentinel node holding +infinity).
+- **LSOBB** — Sorted sequential list with binary search (bisection, inclusive bounds, witness kept on the left, larger segment on the left).
+- **ABB** — Binary search tree. Deletion of a node with two children uses the *smallest of the larger* policy, replacing by copying the data.
 
-## Modelo de costos
+Each structure supports the same four operations: insert, delete, look up and
+display. Deletion is confirmed by comparing the whole tuple, not just the ID,
+and string comparison is case insensitive.
 
-| Operacion | Como se mide |
+## Cost model
+
+| Operation | How it is measured |
 |---|---|
-| Alta y baja en LSOBB | 1 por cada corrimiento de elemento |
-| Alta y baja en LVO y ABB | 0,5 por cada modificacion de puntero |
-| Baja en ABB con reemplazo | + 1 por la copia de datos |
-| Consultas | 1 por cada celda consultada |
+| Insert / delete in LSOBB | 1 per element shifted |
+| Insert / delete in LVO and ABB | 0.5 per pointer modified |
+| Delete in ABB with replacement | + 1 for the data copy |
+| Lookups | 1 per cell visited |
 
-## Resultados
+## Results
 
-Sobre las 8975 operaciones de `Operaciones_Padron.txt`, con un maximo de 2001
-electores presentes al mismo tiempo:
+Over the 8975 operations in `Operaciones_Padron.txt`, with a peak of 2001
+voters held at the same time:
 
-| | Alta (prom / max) | Baja (prom / max) | Evocacion ok (prom / max) | Evocacion falla (prom / max) |
+| | Insert (avg / max) | Delete (avg / max) | Lookup hit (avg / max) | Lookup miss (avg / max) |
 |---|---|---|---|---|
-| **LSOBB** | 413,65 / 2000 | 503,36 / 2000 | 10,14 / 11 | 9,88 / 11 |
-| **LVO** | 1,00 / 1,00 | 0,50 / 0,50 | 566,80 / 1994 | 463,47 / 1206 |
-| **ABB** | 0,50 / 0,50 | 1,02 / 1,50 | 11,84 / 22 | 12,03 / 21 |
+| **LSOBB** | 413.65 / 2000 | 503.36 / 2000 | 10.14 / 11 | 9.88 / 11 |
+| **LVO** | 1.00 / 1.00 | 0.50 / 0.50 | 566.80 / 1994 | 463.47 / 1206 |
+| **ABB** | 0.50 / 0.50 | 1.02 / 1.50 | 11.84 / 22 | 12.03 / 21 |
 
-Ninguna de las tres gana en todo: la LSOBB es la mejor consultando y la peor
-insertando, y la LVO es exactamente al reves. El ABB no es el mejor en ninguna
-operacion, pero es el unico que no es malo en ninguna.
+No structure wins across the board. The LSOBB is the best at lookups and the
+worst at inserting; the LVO is exactly the other way round. The ABB is not the
+best at any single operation, but it is the only one that is not bad at any of
+them.
 
-## Compilar y ejecutar
+The ABB result depends on the order the IDs arrive in. Had they come in sorted,
+the tree would degenerate into a list and lookups would go from O(log N) to
+O(N). Even with the shuffled data in the input file the tree reached a height
+of 22, where a balanced tree holding 2001 nodes would be 11.
 
-Con Code::Blocks: abrir `P1-Grupo15.cbp` y compilar.
+## Build and run
 
-Desde la terminal:
+With Code::Blocks, open `P1-Grupo15.cbp` and build.
+
+From a terminal:
 
 ```
 gcc -o padron main.c LVO.c LSOBB.c ABB.c Elector.c
 ```
 
-El archivo `Operaciones_Padron.txt` tiene que quedar en la misma carpeta desde
-la que se ejecuta el programa.
+`Operaciones_Padron.txt` must sit in the directory the program is run from.
+Each line of that file holds an operation code (1 insert, 2 delete, 3 lookup)
+followed by the voter's fields, one per line.
